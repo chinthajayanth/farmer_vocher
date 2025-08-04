@@ -448,6 +448,7 @@
                 // Show the clear button again after the capture is complete
                 clearBtn.style.display = 'block';
             }).catch(error => {
+                
                 console.error("Error capturing canvas:", error);
                 // Ensure the button is shown even if an error occurs
                 clearBtn.style.display = 'block';
