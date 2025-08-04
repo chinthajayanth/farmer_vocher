@@ -411,7 +411,7 @@
     const a4Width = 794;
     const a4Height = 1123;
 
-    // Clone the target to preserve original form
+    // Clone the form
     const clone = downloadTarget.cloneNode(true);
     clone.style.width = `${a4Width}px`;
     clone.style.padding = '40px';
@@ -419,7 +419,7 @@
     clone.style.background = 'white';
     clone.style.fontSize = '16px';
 
-    // Replace all input elements with styled spans for consistent rendering
+    // 1. Replace all <input> fields with <span> to fix rendering issue
     const inputs = clone.querySelectorAll('input');
     inputs.forEach(input => {
         const span = document.createElement('span');
@@ -434,6 +434,18 @@
         input.parentNode.replaceChild(span, input);
     });
 
+    // 2. Copy signature canvas content into the clone
+    const originalCanvas = document.getElementById('signature-pad');
+    const clonedCanvas = clone.querySelector('#signature-pad');
+
+    if (originalCanvas && clonedCanvas) {
+        clonedCanvas.width = originalCanvas.width;
+        clonedCanvas.height = originalCanvas.height;
+        const ctx = clonedCanvas.getContext('2d');
+        ctx.drawImage(originalCanvas, 0, 0);
+    }
+
+    // 3. Append clone to DOM for rendering
     document.body.appendChild(clone);
 
     html2canvas(clone, {
@@ -447,11 +459,9 @@
         fixedCanvas.height = a4Height;
         const ctx = fixedCanvas.getContext('2d');
 
-        // Fill white background
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, a4Width, a4Height);
 
-        // Scale content to center within A4 canvas
         const scaleRatio = Math.min(a4Width / canvas.width, a4Height / canvas.height);
         const x = (a4Width - canvas.width * scaleRatio) / 2;
         const y = (a4Height - canvas.height * scaleRatio) / 2;
@@ -460,17 +470,16 @@
 
         const img = fixedCanvas.toDataURL("image/jpeg", 1.0);
         const link = document.createElement("a");
-        link.download = "farmer_voucher.jpeg";
         link.href = img;
+        link.download = "farmer_voucher.jpeg";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
 
-        // Cleanup
         document.body.removeChild(clone);
         clearBtn.style.display = 'block';
-    }).catch(err => {
-        console.error("Image capture failed:", err);
+    }).catch(error => {
+        console.error("Error capturing image:", error);
         document.body.removeChild(clone);
         clearBtn.style.display = 'block';
     });
