@@ -408,44 +408,58 @@
     const clearBtn = document.getElementById('clear-signature-btn');
     clearBtn.style.display = 'none';
 
-    // Scroll the entire download target into view
-    downloadTarget.scrollIntoView({ behavior: "auto", block: "start" });
+    const a4Width = 794;
+    const a4Height = 1123;
 
-    // Allow time for scroll/render to complete before capture
-    setTimeout(() => {
-        html2canvas(downloadTarget, {
-            allowTaint: true,
-            useCORS: true,
-            scale: 2,
-            windowWidth: document.documentElement.scrollWidth,
-            windowHeight: document.documentElement.scrollHeight
-        }).then(formCanvas => {
-            // Create a canvas with the same size as the captured form
-            const a4Canvas = document.createElement('canvas');
-            a4Canvas.width = formCanvas.width;
-            a4Canvas.height = formCanvas.height;
+    // Use fixed width A4 container for screenshot
+    const clone = downloadTarget.cloneNode(true);
+    clone.style.width = `${a4Width}px`;
+    clone.style.height = 'auto';
+    clone.style.padding = '40px';
+    clone.style.boxSizing = 'border-box';
+    clone.style.background = 'white';
+    clone.style.fontSize = '16px';
 
-            const ctx = a4Canvas.getContext('2d');
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, a4Canvas.width, a4Canvas.height);
-            ctx.drawImage(formCanvas, 0, 0);
+    document.body.appendChild(clone);
 
-            const imgData = a4Canvas.toDataURL('image/jpeg', 1.0);
+    html2canvas(clone, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 2,
+        width: a4Width
+    }).then(canvas => {
+        const fixedCanvas = document.createElement('canvas');
+        fixedCanvas.width = a4Width;
+        fixedCanvas.height = a4Height;
+        const ctx = fixedCanvas.getContext('2d');
 
-            const link = document.createElement('a');
-            link.href = imgData;
-            link.download = 'farmer_voucher.jpeg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        // Fill background white
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, a4Width, a4Height);
 
-            clearBtn.style.display = 'block';
-        }).catch(error => {
-            console.error("Error capturing canvas:", error);
-            clearBtn.style.display = 'block';
-        });
-    }, 300); // Wait 300ms to ensure everything is fully rendered
+        const scaleRatio = Math.min(a4Width / canvas.width, a4Height / canvas.height);
+        const x = (a4Width - canvas.width * scaleRatio) / 2;
+        const y = (a4Height - canvas.height * scaleRatio) / 2;
+
+        ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, x, y, canvas.width * scaleRatio, canvas.height * scaleRatio);
+
+        const img = fixedCanvas.toDataURL("image/jpeg", 1.0);
+        const link = document.createElement("a");
+        link.download = "farmer_voucher.jpeg";
+        link.href = img;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        clearBtn.style.display = 'block';
+        document.body.removeChild(clone); // Clean up
+    }).catch(err => {
+        console.error("Image download error:", err);
+        clearBtn.style.display = 'block';
+        document.body.removeChild(clone);
+    });
 };
+
+
 
 
         // Add event listener to the download button
