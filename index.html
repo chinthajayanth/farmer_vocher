@@ -139,7 +139,8 @@
                     <span class="w-1/3">Rupees in words</span>
                     <span>:</span>
                     <div class="flex-grow flex items-center space-x-2">
-                        <span id="rupees-in-words" class="uppercase text-left flex-grow"></span>
+                        <!-- Use whitespace-nowrap to prevent text wrapping -->
+                        <span id="rupees-in-words" class="uppercase text-left flex-grow whitespace-nowrap"></span>
                         <div class="dotted-line w-1/3"></div>
                     </div>
                 </div>
@@ -401,19 +402,23 @@
             const a4Height = 1123; // approx 29.7cm
             const margin = 38; // approx 1cm at 96 DPI
 
-            // Create a temporary canvas with A4 dimensions
-            const a4Canvas = document.createElement('canvas');
-            a4Canvas.width = a4Width;
-            a4Canvas.height = a4Height;
-            const a4Ctx = a4Canvas.getContext('2d');
-            a4Ctx.fillStyle = 'white';
-            a4Ctx.fillRect(0, 0, a4Width, a4Height); // Fill with white background
-
-            // Capture the voucher form content
+            // Capture the voucher form content, ensuring the entire element is captured
             html2canvas(downloadTarget, {
                 allowTaint: true,
-                useCORS: true
+                useCORS: true,
+                // These options ensure the full height of the element is captured, even on a small screen
+                scrollY: -window.scrollY,
+                windowWidth: downloadTarget.scrollWidth,
+                windowHeight: downloadTarget.scrollHeight
             }).then(formCanvas => {
+                // Create a temporary canvas with A4 dimensions
+                const a4Canvas = document.createElement('canvas');
+                a4Canvas.width = a4Width;
+                a4Canvas.height = a4Height;
+                const a4Ctx = a4Canvas.getContext('2d');
+                a4Ctx.fillStyle = 'white';
+                a4Ctx.fillRect(0, 0, a4Width, a4Height); // Fill with white background
+                
                 // Calculate position and dimensions to draw the form onto the A4 canvas
                 const drawWidth = a4Width - (2 * margin);
                 const drawHeight = (formCanvas.height / formCanvas.width) * drawWidth;
