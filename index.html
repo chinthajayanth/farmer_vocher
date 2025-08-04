@@ -159,8 +159,9 @@
             <!-- Declaration and Signature Section -->
             <div class="mt-8 text-sm sm:text-base">
                 <p>As you paid by cash I received / The above amount is to be deposited in my account duly acknowledged.</p>
-                <div class="mt-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                    <div class="w-full sm:w-auto flex flex-col items-start space-y-2">
+                <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-start gap-4 sm:gap-8">
+    <!-- Left: Date + Vehicle No -->
+                    <div class="flex flex-col space-y-2 w-full sm:w-1/2">
                         <div class="flex items-center space-x-2">
                             <span>Date :</span>
                             <input type="text" class="form-input text-left" />
@@ -171,18 +172,18 @@
                         </div>
                     </div>
 
-                    <div class="text-right w-full sm:w-auto">
-                        <!-- Signature Pad and Buttons -->
-                        <div class="flex flex-col items-end">
-                            <canvas id="signature-pad" class="w-full sm:w-64 h-32"></canvas>
-                            <div class="flex space-x-2 mt-2">
-                                <button id="clear-signature-btn" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-3 rounded-md transition-all duration-300">
-                                    Clear
-                                </button>
-                                <span class="block mt-1 text-sm font-semibold">Signature of Seller</span>
-                            </div>
-                        </div>
+    <!-- Right: Signature Pad -->
+                <div class="flex flex-col items-end w-full sm:w-1/2">
+                <canvas id="signature-pad" class="w-full sm:w-64 h-32"></canvas>
+                    <div class="flex space-x-2 mt-2">
+                        <button id="clear-signature-btn" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-3 rounded-md transition-all duration-300">
+                            Clear
+                        </button>
+                        <span class="block mt-1 text-sm font-semibold">Signature of Seller</span>
                     </div>
+                    </div>
+                    </div>
+
                 </div>
             </div>
         </div>
