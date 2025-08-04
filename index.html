@@ -367,10 +367,9 @@
         // Function to update the total value and words
         const updateCalculations = () => {
             const bags = parseInputNumber(bagsInput);
-            const weight = parseInputNumber(weightInput);
             const rate = parseInputNumber(rateInput);
 
-            const total = bags * weight * rate;
+            const total = bags  * rate;
             totalValueSpan.textContent = formatNumberIndian(total.toFixed(2));
             if (rupeesInWordsText) {
                 rupeesInWordsText.textContent = numberToWords(total).toUpperCase(); // Convert to uppercase
