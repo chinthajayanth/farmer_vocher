@@ -1,199 +1,460 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Farmer Voucher</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-    }
-
-    .form-container {
-      max-width: 794px;
-      margin: 0 auto;
-    }
-
-    .thin-border {
-      border: 1px solid black;
-    }
-
-    .form-label {
-      display: inline-block;
-      width: 12rem;
-    }
-
-    .underline-box {
-      border-top: 1px solid black;
-      border-bottom: 1px solid black;
-      padding: 0.25rem 0.5rem;
-      min-width: 150px;
-    }
-
-    .dotted-line {
-      border-bottom: 1px dotted black;
-      width: 100%;
-      margin-top: 4px;
-    }
-
-    canvas#signature-pad {
-      border: 1px solid black;
-      background-color: #fff;
-    }
-
-    input {
-      outline: none;
-      border: none;
-      border-bottom: 1px solid #000;
-      flex-grow: 1;
-      padding: 2px 4px;
-      background: transparent;
-    }
-
-    @media print {
-      #download-btn {
-        display: none;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Voucher App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS to style the input fields and lines to match the image */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem auto;
+            /* Added padding to the outer container to create space between the borders */
+            padding: 0.5rem;
+        }
+        .thin-border {
+            border: 1px solid black;
+            border-radius: 0.5rem;
+        }
+        .input-line {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border-bottom: 1px solid black;
+            height: 24px;
+        }
+        .dotted-line {
+            border-bottom: 1px dotted black;
+            width: 100%;
+        }
+        .form-input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            padding: 0 4px;
+            text-align: right; /* Align text to the right for numerical inputs */
+        }
+        /* Custom styles for the signature pad */
+        #signature-pad {
+            border: 1px solid black;
+            border-radius: 4px;
+            cursor: crosshair;
+            background-color: #f9fafb;
+        }
+        /* New, stable layout for Rupees in words */
+        .rupees-in-words-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        #rupees-in-words-text {
+            word-wrap: break-word; /* Ensure text wraps when needed */
+            line-height: 1.5; /* Adds some space below the text */
+            padding-bottom: 0.5rem;
+        }
+    </style>
 </head>
-<body class="bg-white p-2">
+<body class="p-4">
+    <!-- Main container for the form, including both thick and thin borders -->
+    <div class="form-container border-4 border-gray-900 rounded-lg" id="download-target">
+        <!-- Inner thin border -->
+        <div class="thin-border p-8 sm:p-12 bg-white" id="voucher-form">
 
-  <div class="form-container border-4 border-black p-1" id="download-target">
-    <div class="thin-border p-8 bg-white">
-      <!-- Title -->
-      <h1 class="text-center text-xl font-bold underline mb-8">FARMER VOUCHER</h1>
+            <!-- Title Section -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold underline">FARMER VOUCHER</h1>
+            </div>
 
-      <!-- Fields -->
-      <div class="text-base space-y-3">
-        <div><span class="form-label">Buyers Name</span>: <input type="text" /></div>
-        <div><span class="form-label">Village</span>: <input type="text" /></div>
-        <div><span class="form-label">Seller Name</span>: <input type="text" /></div>
-        <div><span class="form-label">Village</span>: <input type="text" /></div>
-        <div><span class="form-label">Paddy Variety</span>: <input type="text" /></div>
-        <div><span class="form-label">Total Number of Bags</span>: <input type="text" id="bags" value="0" /></div>
-        <div><span class="form-label">Weight of one bag.</span>: <input type="text" id="weight" value="0" /></div>
-        <div><span class="form-label">Rate of each Bag</span>: <input type="text" id="rate" value="0.00" /></div>
-      </div>
+            <!-- Input Fields Section -->
+            <div class="space-y-4 text-sm sm:text-base">
+                <!-- Buyers Name -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Buyers Name</span>
+                    <span>:</span>
+                    <input type="text" class="form-input text-left flex-none w-2/3" />
+                </div>
 
-      <!-- Total Value -->
-      <div class="mt-8 text-base flex items-center gap-2">
-        <span class="form-label">Total Value</span>: 
-        <div class="underline-box"><span id="total-value">0.00</span></div>
-      </div>
+                <!-- Village (Buyer's) -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Village</span>
+                    <span>:</span>
+                    <input type="text" class="form-input text-left flex-none w-2/3" />
+                </div>
 
-      <!-- Rupees in Words -->
-      <div class="mt-8 text-base">
-        <div class="flex gap-2 items-start">
-          <span class="form-label">Rupees in words</span>: 
-          <div class="flex-1">
-            <div id="rupees-in-words-text" class="uppercase"></div>
-            <div class="dotted-line"></div>
-          </div>
+                <!-- Seller Name -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Seller Name</span>
+                    <span>:</span>
+                    <input type="text" class="form-input text-left flex-none w-2/3" />
+                </div>
+
+                <!-- Village (Seller's) -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Village</span>
+                    <span>:</span>
+                    <input type="text" class="form-input text-left flex-none w-2/3" />
+                </div>
+
+                <!-- Paddy Variety -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Paddy Variety</span>
+                    <span>:</span>
+                    <input type="text" class="form-input text-left flex-none w-2/3" />
+                </div>
+
+                <!-- Total Number of Bags -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Total Number of Bags</span>
+                    <span>:</span>
+                    <input type="text" id="bags" class="form-input text-right" value="0" />
+                </div>
+
+                <!-- Weight of one bag -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Weight of one bag.</span>
+                    <span>:</span>
+                    <input type="text" id="weight" class="form-input text-right" value="0" />
+                </div>
+
+                <!-- Rate of each Bag -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Rate of each Bag</span>
+                    <span>:</span>
+                    <input type="text" id="rate" class="form-input text-right" value="0.00" />
+                </div>
+            </div>
+
+            <!-- Calculation and total value section -->
+            <div class="mt-8">
+                <!-- Total Value -->
+                <div class="flex items-center space-x-2">
+                    <span class="w-1/3">Total Value</span>
+                    <span>:</span>
+                    <div class="flex-grow">
+                        <div class="border-t border-b border-black h-8 flex items-center justify-start px-2">
+                            <span id="total-value" class="w-full text-left">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rupees in words -->
+                <div class="flex items-start space-x-2 mt-8">
+                    <span class="w-1/3">Rupees in words</span>
+                    <span>:</span>
+                    <div class="rupees-in-words-container">
+                        <span id="rupees-in-words-text" class="uppercase text-left w-full"></span>
+                        <div class="dotted-line w-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Declaration and Signature Section -->
+            <div class="mt-8 text-sm sm:text-base">
+                <p>As you paid by cash I received / The above amount is to be deposited in my account duly acknowledged.</p>
+                <div class="mt-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <span>Date :</span>
+                        <input type="text" class="form-input text-left" />
+                    </div>
+                    <div class="text-right w-full sm:w-auto">
+                        <!-- Signature Pad and Buttons -->
+                        <div class="flex flex-col items-end">
+                            <canvas id="signature-pad" class="w-full sm:w-64 h-32"></canvas>
+                            <div class="flex space-x-2 mt-2">
+                                <button id="clear-signature-btn" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-3 rounded-md transition-all duration-300">
+                                    Clear
+                                </button>
+                                <span class="block mt-1 text-sm font-semibold">Signature of Seller</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- Declaration -->
-      <p class="mt-6 text-base leading-snug">
-        As you paid by cash I received / The above amount is to be deposited in my account duly acknowledged.
-      </p>
-
-      <!-- Date and Signature -->
-      <div class="mt-6 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <span>Date :</span>
-          <input type="text" />
-        </div>
-        <div class="text-center">
-          <canvas id="signature-pad" class="w-64 h-24"></canvas>
-          <button id="clear-signature-btn" class="mt-1 text-xs text-red-600 underline">Clear</button>
-          <div class="mt-1 font-medium">Signature of Seller</div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <div class="text-center mt-6">
-    <button id="download-btn" class="bg-blue-600 text-white px-6 py-2 rounded">Download as Image</button>
-  </div>
+    <!-- Download Button -->
+    <div class="mt-8 text-center">
+        <button id="download-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-all duration-300">
+            Download as Image
+        </button>
+    </div>
 
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <script>
-    const bags = document.getElementById('bags');
-    const weight = document.getElementById('weight');
-    const rate = document.getElementById('rate');
-    const totalValue = document.getElementById('total-value');
-    const words = document.getElementById('rupees-in-words-text');
+    <!-- html2canvas CDN -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        // --- JavaScript Logic ---
+        
+        // Function to convert a number to Indian Rupees in words
+        function numberToWords(num) {
+            const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+            const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+        
+            const convertToWords = (n) => {
+                let s = '';
+                if (n < 20) {
+                    s = a[n];
+                } else {
+                    s = b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
+                }
+                return s;
+            };
+        
+            // Ensure num is a number and non-negative
+            if (isNaN(num) || num < 0) {
+                return 'Invalid amount';
+            }
 
-    function numberToWords(n) {
-      const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
-        'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-      const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-      const make = (num) => {
-        if (num < 20) return a[num];
-        if (num < 100) return b[Math.floor(num / 10)] + (num % 10 ? ' ' + a[num % 10] : '');
-        if (num < 1000) return a[Math.floor(num / 100)] + ' Hundred ' + make(num % 100);
-        if (num < 100000) return make(Math.floor(num / 1000)) + ' Thousand ' + make(num % 1000);
-        if (num < 10000000) return make(Math.floor(num / 100000)) + ' Lakh ' + make(num % 100000);
-        return make(Math.floor(num / 10000000)) + ' Crore ' + make(num % 10000000);
-      };
-      return make(n).trim() + ' only';
-    }
+            // Handle the case of zero
+            if (num === 0) {
+                return 'zero only';
+            }
+        
+            const crore = Math.floor(num / 10000000);
+            const lakh = Math.floor((num % 10000000) / 100000);
+            const thousand = Math.floor((num % 100000) / 1000);
+            const hundred = Math.floor((num % 1000) / 100);
+            const remainder = num % 100;
+        
+            let words = '';
+            if (crore > 0) {
+                words += convertToWords(crore) + 'crore ';
+            }
+            if (lakh > 0) {
+                words += convertToWords(lakh) + 'lakh ';
+            }
+            if (thousand > 0) {
+                words += convertToWords(thousand) + 'thousand ';
+            }
+            if (hundred > 0) {
+                words += convertToWords(hundred) + 'hundred ';
+            }
+            if (remainder > 0) {
+                words += convertToWords(remainder);
+            }
+        
+            return words.trim() + ' only';
+        }
 
-    function update() {
-      const bagVal = parseFloat(bags.value.replace(/,/g, '')) || 0;
-      const weightVal = parseFloat(weight.value.replace(/,/g, '')) || 0;
-      const rateVal = parseFloat(rate.value.replace(/,/g, '')) || 0;
-      const total = bagVal * weightVal * rateVal;
-      totalValue.innerText = total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-      words.innerText = numberToWords(Math.floor(total)).toUpperCase();
-    }
+        // Get elements from the DOM
+        const bagsInput = document.getElementById('bags');
+        const weightInput = document.getElementById('weight');
+        const rateInput = document.getElementById('rate');
+        const totalValueSpan = document.getElementById('total-value');
+        const rupeesInWordsText = document.getElementById('rupees-in-words-text');
+        const downloadBtn = document.getElementById('download-btn');
+        const downloadTarget = document.getElementById('download-target');
 
-    [bags, weight, rate].forEach(el => {
-      el.addEventListener('input', update);
-    });
+        // Signature Pad Elements
+        const signaturePad = document.getElementById('signature-pad');
+        const signatureCtx = signaturePad.getContext('2d');
+        const clearSignatureBtn = document.getElementById('clear-signature-btn');
 
-    // Signature Pad
-    const canvas = document.getElementById('signature-pad');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
+        // Signature drawing state
+        let isDrawing = false;
 
-    canvas.addEventListener('mousedown', e => {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(e.offsetX, e.offsetY);
-    });
+        // Function to update the canvas size to fit its container
+        const resizeCanvas = () => {
+            const rect = signaturePad.getBoundingClientRect();
+            signaturePad.width = rect.width;
+            signaturePad.height = rect.height;
+            signatureCtx.lineWidth = 2;
+            signatureCtx.lineCap = 'round';
+            signatureCtx.strokeStyle = 'black';
+        };
 
-    canvas.addEventListener('mousemove', e => {
-      if (drawing) {
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-      }
-    });
+        // Initialize canvas on load
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            updateCalculations();
+        });
+        window.addEventListener('resize', resizeCanvas);
 
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mouseleave', () => drawing = false);
+        // Mouse drawing events
+        const startDrawing = (e) => {
+            isDrawing = true;
+            const { offsetX, offsetY } = getCoords(e);
+            signatureCtx.beginPath();
+            signatureCtx.moveTo(offsetX, offsetY);
+        };
 
-    document.getElementById('clear-signature-btn').onclick = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    };
+        const draw = (e) => {
+            if (!isDrawing) return;
+            const { offsetX, offsetY } = getCoords(e);
+            signatureCtx.lineTo(offsetX, offsetY);
+            signatureCtx.stroke();
+        };
 
-    // Download as image
-    document.getElementById('download-btn').onclick = () => {
-      document.getElementById('clear-signature-btn').style.display = 'none';
-      html2canvas(document.getElementById('download-target'), {
-        scale: 2
-      }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'farmer_voucher.jpeg';
-        link.href = canvas.toDataURL();
-        link.click();
-        document.getElementById('clear-signature-btn').style.display = 'inline';
-      });
-    };
+        const stopDrawing = () => {
+            isDrawing = false;
+            signatureCtx.closePath();
+        };
 
-    update();
-  </script>
+        // Touch drawing events
+        const startDrawingTouch = (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            const { offsetX, offsetY } = getCoords(e.touches[0]);
+            signatureCtx.beginPath();
+            signatureCtx.moveTo(offsetX, offsetY);
+        };
+
+        const drawTouch = (e) => {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const { offsetX, offsetY } = getCoords(e.touches[0]);
+            signatureCtx.lineTo(offsetX, offsetY);
+            signatureCtx.stroke();
+        };
+
+        const stopDrawingTouch = () => {
+            isDrawing = false;
+            signatureCtx.closePath();
+        };
+
+        // Helper function to get coordinates from mouse or touch event
+        const getCoords = (event) => {
+            const rect = signaturePad.getBoundingClientRect();
+            return {
+                offsetX: event.clientX - rect.left,
+                offsetY: event.clientY - rect.top
+            };
+        };
+
+        // Add mouse and touch event listeners for the signature pad
+        signaturePad.addEventListener('mousedown', startDrawing);
+        signaturePad.addEventListener('mousemove', draw);
+        signaturePad.addEventListener('mouseup', stopDrawing);
+        signaturePad.addEventListener('mouseleave', stopDrawing);
+
+        signaturePad.addEventListener('touchstart', startDrawingTouch);
+        signaturePad.addEventListener('touchmove', drawTouch);
+        signaturePad.addEventListener('touchend', stopDrawingTouch);
+        signaturePad.addEventListener('touchcancel', stopDrawingTouch);
+
+        // Clear signature button functionality
+        clearSignatureBtn.addEventListener('click', () => {
+            signatureCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+        });
+
+        // Function to format a number with Indian commas
+        const formatNumberIndian = (num) => {
+            const parts = num.toString().split('.');
+            let integerPart = parts[0];
+            let lastThree = integerPart.substring(integerPart.length - 3);
+            let otherNumbers = integerPart.substring(0, integerPart.length - 3);
+            if (otherNumbers !== '') {
+                lastThree = ',' + lastThree;
+            }
+            const formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+            return parts.length > 1 ? formatted + '.' + parts[1] : formatted;
+        };
+
+        // Function to remove commas and parse as a float
+        const parseInputNumber = (input) => {
+            const value = input.value.replace(/,/g, '');
+            return parseFloat(value) || 0;
+        };
+
+        // Function to update the total value and words
+        const updateCalculations = () => {
+            const bags = parseInputNumber(bagsInput);
+            const weight = parseInputNumber(weightInput);
+            const rate = parseInputNumber(rateInput);
+
+            const total = bags * weight * rate;
+            totalValueSpan.textContent = formatNumberIndian(total.toFixed(2));
+            if (rupeesInWordsText) {
+                rupeesInWordsText.textContent = numberToWords(total).toUpperCase(); // Convert to uppercase
+            }
+        };
+
+        // Function to handle number input formatting on blur
+        const handleNumberInput = (event) => {
+            const input = event.target;
+            let value = parseInputNumber(input);
+            
+            // Bags and Weight are whole numbers, Rate is a decimal
+            let formattedValue = '';
+            if (input.id === 'rate') {
+                formattedValue = formatNumberIndian(value.toFixed(2));
+            } else {
+                formattedValue = formatNumberIndian(value.toFixed(0));
+            }
+            input.value = formattedValue;
+            updateCalculations();
+        };
+
+        // Add event listeners for calculations and formatting
+        bagsInput.addEventListener('input', updateCalculations);
+        weightInput.addEventListener('input', updateCalculations);
+        rateInput.addEventListener('input', updateCalculations);
+
+        bagsInput.addEventListener('blur', handleNumberInput);
+        weightInput.addEventListener('blur', handleNumberInput);
+        rateInput.addEventListener('blur', handleNumberInput);
+
+
+        // Function to handle the download as image functionality
+        const downloadImage = () => {
+    const clearBtn = document.getElementById('clear-signature-btn');
+    clearBtn.style.display = 'none';
+
+    // Scroll the entire download target into view
+    downloadTarget.scrollIntoView({ behavior: "auto", block: "start" });
+
+    // Allow time for scroll/render to complete before capture
+    setTimeout(() => {
+        html2canvas(downloadTarget, {
+            allowTaint: true,
+            useCORS: true,
+            scale: 2,
+            windowWidth: document.documentElement.scrollWidth,
+            windowHeight: document.documentElement.scrollHeight
+        }).then(formCanvas => {
+            // Create a canvas with the same size as the captured form
+            const a4Canvas = document.createElement('canvas');
+            a4Canvas.width = formCanvas.width;
+            a4Canvas.height = formCanvas.height;
+
+            const ctx = a4Canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, a4Canvas.width, a4Canvas.height);
+            ctx.drawImage(formCanvas, 0, 0);
+
+            const imgData = a4Canvas.toDataURL('image/jpeg', 1.0);
+
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = 'farmer_voucher.jpeg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            clearBtn.style.display = 'block';
+        }).catch(error => {
+            console.error("Error capturing canvas:", error);
+            clearBtn.style.display = 'block';
+        });
+    }, 300); // Wait 300ms to ensure everything is fully rendered
+};
+
+
+        // Add event listener to the download button
+        downloadBtn.addEventListener('click', downloadImage);
+
+        // Initial formatting of inputs on page load
+        bagsInput.value = formatNumberIndian(parseFloat(bagsInput.value).toFixed(0));
+        weightInput.value = formatNumberIndian(parseFloat(weightInput.value).toFixed(0));
+        rateInput.value = formatNumberIndian(parseFloat(rateInput.value).toFixed(2));
+    </script>
 </body>
 </html>
