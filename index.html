@@ -249,7 +249,7 @@
         const weightInput = document.getElementById('weight');
         const rateInput = document.getElementById('rate');
         const totalValueSpan = document.getElementById('total-value');
-        const rupeesInWordsSpan = document.getElementById('rupees-in-words-text');
+        const rupeesInWordsText = document.getElementById('rupees-in-words-text');
         const downloadBtn = document.getElementById('download-btn');
         const downloadTarget = document.getElementById('download-target');
 
@@ -372,8 +372,8 @@
 
             const total = bags * weight * rate;
             totalValueSpan.textContent = formatNumberIndian(total.toFixed(2));
-            if (rupeesInWordsSpan) {
-                rupeesInWordsSpan.textContent = numberToWords(total).toUpperCase(); // Convert to uppercase
+            if (rupeesInWordsText) {
+                rupeesInWordsText.textContent = numberToWords(total).toUpperCase(); // Convert to uppercase
             }
         };
 
