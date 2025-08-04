@@ -411,14 +411,28 @@
     const a4Width = 794;
     const a4Height = 1123;
 
-    // Use fixed width A4 container for screenshot
+    // Clone the target to preserve original form
     const clone = downloadTarget.cloneNode(true);
     clone.style.width = `${a4Width}px`;
-    clone.style.height = 'auto';
     clone.style.padding = '40px';
     clone.style.boxSizing = 'border-box';
     clone.style.background = 'white';
     clone.style.fontSize = '16px';
+
+    // Replace all input elements with styled spans for consistent rendering
+    const inputs = clone.querySelectorAll('input');
+    inputs.forEach(input => {
+        const span = document.createElement('span');
+        span.textContent = input.value;
+        span.style.display = 'inline-block';
+        span.style.minWidth = '100px';
+        span.style.borderBottom = '1px solid #000';
+        span.style.padding = '2px 4px';
+        span.style.fontSize = 'inherit';
+        span.style.fontFamily = 'inherit';
+        span.style.textAlign = input.style.textAlign || 'left';
+        input.parentNode.replaceChild(span, input);
+    });
 
     document.body.appendChild(clone);
 
@@ -433,10 +447,11 @@
         fixedCanvas.height = a4Height;
         const ctx = fixedCanvas.getContext('2d');
 
-        // Fill background white
+        // Fill white background
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, a4Width, a4Height);
 
+        // Scale content to center within A4 canvas
         const scaleRatio = Math.min(a4Width / canvas.width, a4Height / canvas.height);
         const x = (a4Width - canvas.width * scaleRatio) / 2;
         const y = (a4Height - canvas.height * scaleRatio) / 2;
@@ -450,15 +465,16 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        clearBtn.style.display = 'block';
-        document.body.removeChild(clone); // Clean up
-    }).catch(err => {
-        console.error("Image download error:", err);
-        clearBtn.style.display = 'block';
+
+        // Cleanup
         document.body.removeChild(clone);
+        clearBtn.style.display = 'block';
+    }).catch(err => {
+        console.error("Image capture failed:", err);
+        document.body.removeChild(clone);
+        clearBtn.style.display = 'block';
     });
 };
-
 
 
 
