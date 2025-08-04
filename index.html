@@ -49,6 +49,16 @@
             cursor: crosshair;
             background-color: #f9fafb;
         }
+        /* New, stable layout for Rupees in words */
+        .rupees-in-words-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        #rupees-in-words {
+            line-height: 1.5;
+            word-wrap: break-word; /* Ensure text wraps when needed */
+        }
     </style>
 </head>
 <body class="p-4">
@@ -135,13 +145,12 @@
                 </div>
 
                 <!-- Rupees in words -->
-                <div class="flex items-center space-x-2 mt-8">
+                <div class="flex items-start space-x-2 mt-8">
                     <span class="w-1/3">Rupees in words</span>
                     <span>:</span>
-                    <div class="flex-grow flex items-center space-x-2">
-                        <!-- Use whitespace-nowrap to prevent text wrapping -->
-                        <span id="rupees-in-words" class="uppercase text-left flex-grow whitespace-nowrap"></span>
-                        <div class="dotted-line w-1/3"></div>
+                    <div class="rupees-in-words-container">
+                        <span id="rupees-in-words" class="uppercase text-left w-full"></span>
+                        <div class="dotted-line w-full"></div>
                     </div>
                 </div>
             </div>
@@ -406,10 +415,7 @@
             html2canvas(downloadTarget, {
                 allowTaint: true,
                 useCORS: true,
-                // These options ensure the full height of the element is captured, even on a small screen
-                scrollY: -window.scrollY,
-                windowWidth: downloadTarget.scrollWidth,
-                windowHeight: downloadTarget.scrollHeight
+                scale: 2 // Increase scale for higher resolution on high-DPI screens
             }).then(formCanvas => {
                 // Create a temporary canvas with A4 dimensions
                 const a4Canvas = document.createElement('canvas');
